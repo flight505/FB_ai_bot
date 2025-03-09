@@ -1,4 +1,5 @@
 Below is a step-by-step checklist to guide an LLM coding assistant (or any developer) through implementing the requested improvements. Each step is as small and atomic as possible, with instructions to periodically run the code to verify correctness before moving on.
+use openai 1.65.5
 
 ⸻
 

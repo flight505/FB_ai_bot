@@ -12,59 +12,61 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import (
-    TimeoutException,
-    NoSuchElementException
-)
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from webdriver_manager.chrome import ChromeDriverManager
 import openai
-import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
 CONFIG = {
-    'POST_URL': os.getenv('POST_URL'),
+    "POST_URL": os.getenv("POST_URL"),
     # Change 'Write a comment...' to your language in Facebook settings like 'Comment as Nguyen Duy' or 'Viết bình luận...'
-    'COMMENT_BOX_XPATH': "//div[contains(@aria-label, 'Write a comment') and @contenteditable='true']",
-    'MAX_COMMENTS': 100,
-    'MAX_ITERATIONS': 10000,
-    'DELAYS': {
-        'SHORT_MIN': 0.5,
-        'SHORT_MAX': 2.0,
-        'MEDIUM_MIN': 1,
-        'MEDIUM_MAX': 3,
-        'LONG_MIN': 5,
-        'LONG_MAX': 20,
-        'RELOAD_PAUSE': 180,
+    "COMMENT_BOX_XPATH": "//div[contains(@aria-label, 'Write a comment') and @contenteditable='true']",
+    "MAX_COMMENTS": 100,
+    "MAX_ITERATIONS": 10000,
+    "DELAYS": {
+        "SHORT_MIN": 0.5,
+        "SHORT_MAX": 2.0,
+        "MEDIUM_MIN": 1,
+        "MEDIUM_MAX": 3,
+        "LONG_MIN": 5,
+        "LONG_MAX": 20,
+        "RELOAD_PAUSE": 180,
     },
-    'CHROME_PROFILE': 'Default'
+    "CHROME_PROFILE": "Default",
 }
 
 OPENAI_CONFIG = {
-    'API_KEY': os.getenv('OPENAI_API_KEY'),
-    'MODEL': os.getenv('OPENAI_MODEL'),
-    'PROMPT': os.getenv('OPENAI_PROMPT') + 'Do not include emojis or any introductory phrases or additional text.'
+    "API_KEY": os.getenv("OPENAI_API_KEY"),
+    "MODEL": os.getenv("OPENAI_MODEL"),
+    "PROMPT": os.getenv("OPENAI_PROMPT")
+    + "Do not include emojis or any introductory phrases or additional text.",
 }
+
 
 def setup_logger():
     """
     Set up comprehensive logging configuration.
     """
-    os.makedirs('logs', exist_ok=True)
-    log_filename = f'logs/facebook_comment_bot_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
+    os.makedirs("logs", exist_ok=True)
+    log_filename = (
+        f'logs/facebook_comment_bot_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
+    )
 
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(levelname)s: %(message)s',
+        format="%(asctime)s - %(levelname)s: %(message)s",
         handlers=[
-            logging.FileHandler(log_filename, encoding='utf-8'),
-            logging.StreamHandler()
-        ]
+            logging.FileHandler(log_filename, encoding="utf-8"),
+            logging.StreamHandler(),
+        ],
     )
     return logging.getLogger(__name__)
 
+
 logger = setup_logger()
+
 
 class FacebookAICommentBot:
     def __init__(self, config=None):
@@ -74,7 +76,7 @@ class FacebookAICommentBot:
         self.config = {**CONFIG, **(config or {})}
         self.driver = None
 
-        openai.api_key = OPENAI_CONFIG['API_KEY']
+        openai.api_key = OPENAI_CONFIG["API_KEY"]
 
     def setup_driver(self):
         """
@@ -84,16 +86,22 @@ class FacebookAICommentBot:
             chrome_options = Options()
             chrome_options.add_argument("--disable-popup-blocking")
             chrome_options.add_argument("--disable-notifications")
-            chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-            chrome_options.add_experimental_option('useAutomationExtension', False)
+            chrome_options.add_experimental_option(
+                "excludeSwitches", ["enable-automation"]
+            )
+            chrome_options.add_experimental_option("useAutomationExtension", False)
 
             # Set Chrome binary location (adjust as needed)
-            chrome_options.binary_location = "C:/Program Files/Google/Chrome/Application/chrome.exe"
+            chrome_options.binary_location = (
+                "C:/Program Files/Google/Chrome/Application/chrome.exe"
+            )
 
             # Create a custom user-data dir (so we don't need your real profile path)
             user_data_dir = os.path.join(os.getcwd(), "chrome_data")
             chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
-            chrome_options.add_argument(f"--profile-directory={self.config['CHROME_PROFILE']}")
+            chrome_options.add_argument(
+                f"--profile-directory={self.config['CHROME_PROFILE']}"
+            )
 
             service = Service(ChromeDriverManager().install())
             self.driver = webdriver.Chrome(service=service, options=chrome_options)
@@ -225,12 +233,12 @@ class FacebookAICommentBot:
         Use OpenAI API to generate a random, personalized comment.
         """
         try:
-            prompt = OPENAI_CONFIG['PROMPT']
+            prompt = OPENAI_CONFIG["PROMPT"]
             response = openai.ChatCompletion.create(
-                model=OPENAI_CONFIG['MODEL'],
+                model=OPENAI_CONFIG["MODEL"],
                 messages=[{"role": "user", "content": prompt}],
             )
-            comment = response.choices[0].message['content'].strip()
+            comment = response.choices[0].message["content"].strip()
             logger.info(f"Generated comment: {comment}")
             return comment
         except Exception as e:
@@ -244,7 +252,9 @@ class FacebookAICommentBot:
         """
         try:
             comment_area = WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, self.config['COMMENT_BOX_XPATH']))
+                EC.presence_of_element_located(
+                    (By.XPATH, self.config["COMMENT_BOX_XPATH"])
+                )
             )
 
             # Random scroll or random hover before posting the comment
@@ -270,13 +280,17 @@ class FacebookAICommentBot:
 
             logger.info(f"Comment {comment_count} posted: '{comment}'")
         except TimeoutException:
-            logger.warning(f"Comment {comment_count} posting timeout - element not found")
+            logger.warning(
+                f"Comment {comment_count} posting timeout - element not found"
+            )
             raise
         except NoSuchElementException:
             logger.warning(f"Comment {comment_count} posting element not found")
             raise
         except Exception as e:
-            logger.error(f"Error during comment posting for comment count {comment_count}: {e}")
+            logger.error(
+                f"Error during comment posting for comment count {comment_count}: {e}"
+            )
             raise
 
     def run(self):
@@ -285,14 +299,14 @@ class FacebookAICommentBot:
         """
         try:
             self.setup_driver()
-            self.driver.get(self.config['POST_URL'])
+            self.driver.get(self.config["POST_URL"])
             logger.info(f"Loaded Facebook post URL: {self.config['POST_URL']}")
 
             comment_count = 0
 
-            for i in range(self.config['MAX_ITERATIONS']):
+            for i in range(self.config["MAX_ITERATIONS"]):
                 # Stop if we've hit the maximum comment limit
-                if comment_count >= self.config['MAX_COMMENTS']:
+                if comment_count >= self.config["MAX_COMMENTS"]:
                     logger.info("Max comments reached.")
                     break
 
@@ -317,13 +331,17 @@ class FacebookAICommentBot:
                 if comment_count % 30 == 0 and comment_count != 0:
                     logger.info(f"Comment count: {comment_count}. Refreshing page.")
                     self.driver.refresh()
-                    self.random_pause(self.config['DELAYS']['RELOAD_PAUSE'] - 10, self.config['DELAYS']['RELOAD_PAUSE'] + 10)  # Adding some randomness to the pause
+                    self.random_pause(
+                        self.config["DELAYS"]["RELOAD_PAUSE"] - 10,
+                        self.config["DELAYS"]["RELOAD_PAUSE"] + 10,
+                    )  # Adding some randomness to the pause
         except Exception as e:
             logger.critical(f"Bot execution failed: {e}")
         finally:
             if self.driver:
                 self.driver.quit()
                 logger.info("Browser closed.")
+
 
 def main():
     """
@@ -334,6 +352,7 @@ def main():
         bot.run()
     except Exception as e:
         logger.critical(f"Bot initialization failed: {e}")
+
 
 if __name__ == "__main__":
     main()

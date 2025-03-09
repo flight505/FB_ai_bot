@@ -1,0 +1,14 @@
+[project]
+name = "fb-ai-bot"
+version = "0.1.0"
+description = "Facebook AI Bot"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "selenium",
+    "webdriver-manager",
+    "openai",
+    "python-dotenv",
+    "pre-commit",
+    "ruff",
+]
