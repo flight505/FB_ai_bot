@@ -1,0 +1,81 @@
+{
+    "version": "1.0",
+    "categories": {
+        "general": [
+            {
+                "text": "This is such an insightful perspective! Thanks for sharing your thoughts on this important topic.",
+                "reference": "general_positive_01",
+                "tags": ["positive", "encouraging", "neutral"],
+                "usage_count": 0,
+                "last_used": null
+            },
+            {
+                "text": "Really appreciate how you've broken down this complex issue. It helps put things in perspective.",
+                "reference": "general_analytical_01",
+                "tags": ["thoughtful", "analytical", "positive"],
+                "usage_count": 0,
+                "last_used": null
+            },
+            {
+                "text": "I've been following this topic for a while, and your post adds a valuable perspective to the conversation.",
+                "reference": "general_followup_01",
+                "tags": ["followup", "positive", "engagement"],
+                "usage_count": 0,
+                "last_used": null
+            }
+        ],
+        "business": [
+            {
+                "text": "Your insights on business strategy are spot-on. This kind of thinking is exactly what companies need right now.",
+                "reference": "business_strategy_01",
+                "tags": ["business", "strategy", "professional"],
+                "usage_count": 0,
+                "last_used": null
+            },
+            {
+                "text": "The market analysis in your post is incredibly valuable. Have you considered how recent economic trends might affect this?",
+                "reference": "business_market_01",
+                "tags": ["business", "market", "analysis", "question"],
+                "usage_count": 0,
+                "last_used": null
+            }
+        ],
+        "technology": [
+            {
+                "text": "The technology sector is indeed evolving rapidly. Your points about innovation are spot-on.",
+                "reference": "tech_innovation_01",
+                "tags": ["tech", "innovation", "professional"],
+                "usage_count": 0,
+                "last_used": null
+            },
+            {
+                "text": "As someone working in tech, I find your analysis of these developments particularly insightful. Great perspective!",
+                "reference": "tech_perspective_01",
+                "tags": ["tech", "insight", "professional"],
+                "usage_count": 0,
+                "last_used": null
+            }
+        ],
+        "questions": [
+            {
+                "text": "Interesting approach! Have you considered how this might impact long-term sustainability?",
+                "reference": "question_sustainability_01",
+                "tags": ["question", "thoughtful", "sustainability"],
+                "usage_count": 0,
+                "last_used": null
+            },
+            {
+                "text": "This is fascinating! I'm curious about what inspired you to explore this particular angle?",
+                "reference": "question_inspiration_01",
+                "tags": ["question", "personal", "curiosity"],
+                "usage_count": 0,
+                "last_used": null
+            }
+        ]
+    },
+    "metadata": {
+        "total_comments": 9,
+        "last_updated": "2023-03-09",
+        "rotation_strategy": "random"
+    }
+}

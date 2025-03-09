@@ -27,10 +27,14 @@ A **Selenium-based bot** designed to automatically post **human-like comments** 
 
 ## 🌟 Features
 
-- **Automated Commenting:** Automatically generate and post comments on a specified Facebook post.
+- **Automated Commenting:** Automatically generate and post comments on Facebook posts across multiple pages.
+- **Multi-Page Support:** Process multiple Facebook pages in a single run.
+- **Post Selection:** Automatically find and select posts to comment on.
+- **Context-Aware Comments:** Generate comments that are relevant to the post content.
 - **Human-like Interactions:** Simulates human behavior with random pauses, mouse movements, and typing patterns to mimic genuine user interactions.
 - **OpenAI Integration:** Utilizes OpenAI's language models to generate contextually relevant and engaging comments.
 - **Robust Logging:** Comprehensive logging for monitoring bot activities and debugging.
+- **CSV Metrics:** Logs comments and engagement metrics to CSV files for analysis.
 - **Error Handling:** Captures and logs errors, raising exceptions for critical issues.
 
 ---
@@ -98,6 +102,13 @@ Before setting up the bot, ensure you have the following:
    OPENAI_MODEL=gpt-4o-mini
    OPENAI_PROMPT=Generate a friendly, specific, and engaging Facebook comment.
    POST_URL=https://www.facebook.com/your_post_url_here
+   PAGE_URLS="https://facebook.com/page1,https://facebook.com/page2"
+
+   # Comment Source Configuration
+   COMMENT_SOURCE="openai"  # "openai" or "local"
+   LOCAL_COMMENT_FILE="comments.json"
+   COMMENT_ROTATION="random"  # "random" or "sequential"
+   FALLBACK_TO_OPENAI="true"  # Fallback to OpenAI if local comments fail
    ```
 
    Replace:
@@ -106,6 +117,13 @@ Before setting up the bot, ensure you have the following:
    - `gpt-4o-mini` with the desired OpenAI model (e.g., `gpt-4`, `gpt-4-turbo`, `gpt-4o-mini`).
    - `Generate a friendly, specific, and engaging Facebook comment.` with your desired OpenAI prompt.
    - `https://www.facebook.com/your_post_url_here` with the URL of the Facebook post you want to comment on.
+   - `https://facebook.com/page1,https://facebook.com/page2` with the URLs of the Facebook pages you want to comment on.
+   - Optionally change `COMMENT_SOURCE` to "local" if you want to use predefined comments instead of OpenAI.
+
+5. **Adjust the configuration in `main.py` if needed:**
+   - Modify the `CONFIG` dictionary to change behavior
+   - Adjust XPaths if Facebook's structure has changed
+   - Configure logging and CSV output options
 
 ---
 
@@ -122,24 +140,76 @@ Follow these steps to run the Facebook Comment Bot:
    Execute the bot using the following command:
 
    ```bash
-   python cmt.py
+   python main.py
    ```
 
-3. **Bot Execution Flow:**
+3. **Using Local Comments:**
 
-   - **Initialization:** The bot sets up the Chrome WebDriver with specified options to minimize detection.
-   - **Navigating to Post:** It navigates to the specified Facebook post URL.
-   - **Commenting Process:**
-     - The bot generates comments using OpenAI's API.
-     - Simulates human-like typing and interactions to post comments.
-     - Repeats the process based on `MAX_COMMENTS` and `MAX_ITERATIONS` settings.
-     - Periodically refreshes the page to maintain session stability.
+   You can use predefined comments instead of OpenAI by setting `COMMENT_SOURCE="local"` in your `.env` file and creating a `comments.json` file. The bot will:
 
-   **Example Command:**
+   - Match comment categories to post content based on keywords
+   - Track usage of comments to prevent repetition
+   - Fallback to OpenAI if local comment retrieval fails (configurable)
+
+   The `comments.json` file should follow this structure:
+
+   ```json
+   {
+       "version": "1.0",
+       "categories": {
+           "general": [
+               {
+                   "text": "Your comment text here",
+                   "reference": "unique_identifier",
+                   "tags": ["tag1", "tag2"],
+                   "usage_count": 0,
+                   "last_used": null
+               }
+           ],
+           "technology": [
+               {
+                   "text": "Tech-related comment here",
+                   "reference": "tech_comment_1",
+                   "tags": ["tech", "innovation"],
+                   "usage_count": 0,
+                   "last_used": null
+               }
+           ]
+       },
+       "metadata": {
+           "total_comments": 2,
+           "last_updated": "2023-03-09",
+           "rotation_strategy": "random"
+       }
+   }
+   ```
+
+4. **Scheduling Options:**
+
+   You can schedule the bot to run at a specific time:
 
    ```bash
-   python cmt.py
+   python main.py --schedule 14:30  # Run at 2:30 PM
    ```
+
+   You can also set it to run at intervals:
+
+   ```bash
+   python main.py --schedule 14:30 --interval 120  # Run at 2:30 PM and then every 2 hours
+   ```
+
+5. **Bot Execution Flow:**
+
+   - **Initialization:** The bot sets up the Chrome WebDriver with specified options to minimize detection.
+   - **Page Processing:** It navigates to each Facebook page URL in your configuration.
+   - **Post Selection:** Finds suitable posts to comment on.
+   - **Commenting Process:**
+     - The bot extracts the post text to understand context.
+     - Generates context-aware comments using OpenAI's API.
+     - Simulates human-like typing and interactions to post comments.
+     - Logs comments and engagement metrics to CSV.
+     - Repeats the process based on `MAX_COMMENTS` and `MAX_ITERATIONS` settings.
+     - Periodically refreshes the page to maintain session stability.
 
 ---
 
